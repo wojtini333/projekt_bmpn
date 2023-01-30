@@ -9,12 +9,15 @@ import org.slf4j.LoggerFactory;
 
 public class Mail {
 
+//    195.150.230.215
+//    powiadomienia_erk
+//    powiadomieniaERK#@!
     private static Logger LOG = LoggerFactory.getLogger(Mail.class);
 
     private final static String CONTENT_TYPE = "text/html; charset=UTF-8";
-    private final static String SMTP_HOST = "195.150.230.215";
-    private final static String USER = "powiadomienia_erk";
-    private final static String PASSWORD = "powiadomieniaERK#@!";
+    private final static String SMTP_HOST = "";
+    private final static String USER = "";
+    private final static String PASSWORD = "";
     private final static String SENDER = "\"Akademia Tarnowska\" <powiadomienia_erk@pwsztar.edu.pl>";
     private final static String COPY_RECEIPENT = "powiadomienia.erk@pwsztar.edu.pl";
     private String smtpHost = SMTP_HOST;

@@ -1,103 +1,95 @@
 {
   "components": [
     {
-      "text": "Akademia Tarnowska im. Hetmana Wielkiego Koronnego Jana Amora Tarnowskiego",
+      "text": "#Travel Reservation",
       "type": "text",
-      "id": "Field_1396r3s"
+      "id": "Field_1rqy3ze",
+      "properties": {}
     },
     {
-      "label": "Imię:",
+      "label": "First Name",
       "type": "textfield",
-      "id": "Field_10s8j1z",
-      "key": "firstName",
-      "validate": {
-        "required": true
-      }
-    },
-    {
-      "label": "Nazwisko:",
-      "type": "textfield",
-      "id": "Field_0nxld3p",
-      "key": "lastName",
-      "validate": {
-        "required": true
-      }
-    },
-    {
-      "label": "Email:",
-      "type": "textfield",
-      "id": "Field_0qsy8px",
-      "key": "email",
-      "validate": {
-        "validationType": "email",
-        "required": true
-      }
-    },
-    {
-      "label": "Liczba punktów z poziomu pisemnego wybranego przedmiotu maturalnego:",
-      "type": "textfield",
-      "id": "Field_1rdnm49",
-      "key": "points",
-      "defaultValue": "0",
+      "id": "Field_0tq1nm7",
+      "key": "firstname",
       "validate": {
         "required": true,
-        "pattern": "^[0-9]*$"
-      },
-      "properties": {}
+        "minLength": 1
+      }
+    },
+    {
+      "label": "Last Name",
+      "type": "textfield",
+      "id": "Field_1s7u6t4",
+      "key": "lastname",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "E-mail",
+      "type": "textfield",
+      "id": "Field_09j0wed",
+      "key": "email",
+      "validate": {
+        "required": true,
+        "validationType": "email"
+      }
+    },
+    {
+      "label": "Phone Number",
+      "type": "textfield",
+      "id": "Field_0roxmsg",
+      "key": "phone",
+      "validate": {
+        "validationType": "phone",
+        "required": false
+      }
+    },
+    {
+      "text": "# Trip information",
+      "type": "text",
+      "id": "Field_0hebm2w"
     },
     {
       "values": [
         {
-          "label": "Administracja",
-          "value": "administracja"
+          "label": "One way",
+          "value": "One_way"
         },
         {
-          "label": "Informatyka",
-          "value": "informatyka"
-        },
-        {
-          "label": "Fizjoterapia",
-          "value": "fizjoterapia"
-        },
-        {
-          "label": "Grafika",
-          "value": "grafika"
-        },
-        {
-          "label": "Lekarski",
-          "value": "lekarski"
-        },
-        {
-          "label": "Psychologia",
-          "value": "psychologia"
+          "label": "Round trip",
+          "value": "round_trip"
         }
       ],
-      "label": "Kierunek:",
-      "type": "select",
-      "id": "Field_1ppk803",
-      "key": "faculty",
+      "label": "Type of trip",
+      "type": "radio",
+      "id": "Field_1fjuw5f",
+      "key": "field_0pski5r",
       "validate": {
         "required": true
       },
-      "disabled": false
-    },
-    {
-      "label": "Olimpijczyk?",
-      "type": "checkbox",
-      "id": "Field_1c09wg8",
-      "key": "olympic",
       "properties": {}
     },
     {
+      "subtype": "date",
+      "dateLabel": "Date",
+      "type": "datetime",
+      "id": "Field_0japzrc",
+      "key": "field_0nxeudx",
+      "validate": {
+        "required": true
+      }
+    },
+    {
       "action": "submit",
-      "label": "Zatwierdź",
+      "label": "Reserve",
       "type": "button",
-      "id": "Field_1ybgell",
-      "key": "field_0n5k4nc"
+      "id": "Field_09652t2",
+      "key": "field_13kp54x"
     }
   ],
   "type": "default",
-  "id": "Form_Recruit",
+  "id": "Form_0oz874u",
   "exporter": {
     "name": "form-js (https://demo.bpmn.io)",
     "version": "0.10.0"
