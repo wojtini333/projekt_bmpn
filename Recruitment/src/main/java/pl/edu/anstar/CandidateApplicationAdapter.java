@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.mail.internet.MimeMessage;
+import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,51 +30,7 @@ public class CandidateApplicationAdapter {
         this.javaMailSender = javaMailSender;
     }
 
-    //    @JobWorker(type = "registerApplication")
-//    public Map<String, Object> registerApplication(final JobClient client, final ActivatedJob job) {
-//        HashMap<String, Object> jobResultVariables = new HashMap<>();
-//
-//        LOG.info("Job registerApplication is started.");
-//        final Map<String, Object> jobVariables = job.getVariablesAsMap();
-//        for (Map.Entry<String, Object> entry : jobVariables.entrySet()) {
-//            LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
-//        }
-//
-//        int points = 0;
-//        try {
-//            points = Integer.parseInt((String) job.getVariablesAsMap().get("points"));
-//            LOG.info("Points. {}", points, "points.");
-//        } catch (NumberFormatException e) {
-//            LOG.info("Cannot convert String to int. {}", e);
-//        }
-//
-//        CandidateApplication candidateApplication = new CandidateApplication(
-//                (String) job.getVariablesAsMap().get("firstName"),
-//                (String) job.getVariablesAsMap().get("lastName"),
-//                (String) job.getVariablesAsMap().get("email"),
-//                points,
-//                (String) job.getVariablesAsMap().get("faculty"),
-//                (boolean) job.getVariablesAsMap().get("olympic")
-//                //(String) job.getVariablesAsMap().get("decision")
-//        );
-//
-//        int applicationId = Database.addApplication(candidateApplication);
-//        if (applicationId > 0) {
-//            candidateApplication.setApplicationId(applicationId);
-//            LOG.info("Application registered. Application ID: {}", applicationId);
-//            jobResultVariables.put("applicationRegistered", true);
-//        } else {
-//            LOG.info("Application not registered.");
-//            jobResultVariables.put("applicationRegistered", false);
-//        }
-//        jobResultVariables.put("candidateApplication", candidateApplication);
-//        jobResultVariables.put("applicationId", applicationId);
-//
-//        return jobResultVariables;
-//    }
-
-
-    @JobWorker(type = "registerClient")
+    @JobWorker(type = "requestClientRegistration")
     public Map<String, Object> addToDatabase(final JobClient client, final ActivatedJob job1) {
         HashMap<String, Object> jobResultVariables1 = new HashMap<>();
 
@@ -92,31 +50,53 @@ public class CandidateApplicationAdapter {
         );
 
         int applicationId = Database.addClients(reservation);
-        if (applicationId > 0) {
-            reservation.setReservation_id(applicationId);
-            LOG.info("Application registered. Application ID: {}", applicationId);
-            jobResultVariables1.put("YES", true);
-        } else {
-            LOG.info("Application not registered.");
-            jobResultVariables1.put("applicationRegistered", false);
-        }
-        jobResultVariables1.put("candidateApplication", reservation);
-        jobResultVariables1.put("applicationId", applicationId);
+        if( applicationId == 1 )
+            jobResultVariables1.put("decision",true);
+        else
+            jobResultVariables1.put("decision",false);
 
         return jobResultVariables1;
     }
 
 
-    @JobWorker(type = "isTicketAvailable")
+    @JobWorker(type = "registerClient")
     public Map<String, Object> isTicketAvailable(final JobClient client, final ActivatedJob job1) {
         HashMap<String, Object> jobResultVariables1 = new HashMap<>();
 
-        LOG.info("Job registerApplication is started.");
-        final Map<String, Object> jobVariables1 = job1.getVariablesAsMap();
-        for (Map.Entry<String, Object> entry : jobVariables1.entrySet()) {
-            LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
+        LOG.info("Queue is being check for pending tickets to register");
+        int result;
+        // My code here
+        ArrayList<PendingTicketEntity> pendingTickets = Database.fetchQueuedTickets();
+        if( pendingTickets.size() == 0 ){
+            LOG.info("Queue is empty");
+            jobResultVariables1.put("register",1);
+            return jobResultVariables1;
+        } else {
+            PendingTicketEntity ticket =  pendingTickets.get(0);
+            result = Database.AddApprovedTicket(
+                    ApprovedTicketDto.builder()
+                            .id(ticket.getReservation_id())
+                            .first_name(ticket.getFirst_name())
+                            .last_name(ticket.getLast_name())
+                            .e_mail(ticket.getE_mail())
+                            .phone_number(ticket.getPhone_number())
+                            .type_of_trip(ticket.getType_of_trip())
+                            .date(ticket.getDate())
+                            .time(ticket.getTime())
+                            .departure_id(ticket.getDeparture_id())
+                            .destination_id(ticket.getDestination_id())
+                            .build()
+            );
+
+            if( result == 1 ) {
+                LOG.info("registration approved");
+                jobResultVariables1.put("register", 2);
+            } else {
+                LOG.info("registration not approved");
+                jobResultVariables1.put("register", 3);
+            }
+
         }
-        jobResultVariables1.put("YES",true);
 
         return jobResultVariables1;
     }
@@ -184,32 +164,5 @@ public class CandidateApplicationAdapter {
 
         return jobResultVariables;
     }
-
-
-
-//    @JobWorker(type = "registerDecision")
-//    public Map<String, Object> registerDecision(final JobClient client, final ActivatedJob job) {
-//        HashMap<String, Object> jobResultVariables = new HashMap<>();
-//
-//        LOG.info("Job registerDecision is started.");
-//        final Map<String, Object> jobVariables = job.getVariablesAsMap();
-//        for (Map.Entry<String, Object> entry : jobVariables.entrySet()) {
-//            LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
-//        }
-//
-//        String decision = (String) job.getVariablesAsMap().get("decision");
-//        int applicationId = (Integer) job.getVariablesAsMap().get("applicationId");
-//
-//        int countUpdatedRows = Database.updateApplicationDecision(applicationId, decision);
-//        if (countUpdatedRows > 0) {
-//            LOG.info("Decision registered. Application ID: {}", applicationId + " / " + "Decision: " + decision);
-//            jobResultVariables.put("decisionRegistered", true);
-//        } else {
-//            LOG.info("Decision not registered.");
-//            jobResultVariables.put("decisionRegistered", false);
-//        }
-//
-//        return jobResultVariables;
-//    }
 
 }

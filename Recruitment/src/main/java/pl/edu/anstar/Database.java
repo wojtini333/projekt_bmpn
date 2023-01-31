@@ -1,12 +1,17 @@
 package pl.edu.anstar;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
 
 public class Database {
 
+//    public static void main(String[] args) {;
+//        System.out.println(fetchQueuedTickets().get(0).getFirst_name());
+//    }
     static final String JDBC_DRIVER = "org.postgresql.Driver";
     static final String DB_URL = "jdbc:postgresql://195.150.230.210:5434/2021_jaklinski_wojciech";
     static final String USER = "2021_jaklinski_wojciech";
@@ -98,9 +103,112 @@ public class Database {
 //        }
 //        return applicationID;
 //    }
+    public static ArrayList<PendingTicketEntity> fetchQueuedTickets(){
+
+        final String QUERY = "select * from flight_book_app.pending_tickets limit 1";
+        ArrayList<PendingTicketEntity> pendingTicketEntityArrayList = new ArrayList<>();
+
+        Connection connection = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            Class.forName(JDBC_DRIVER);
+
+            connection = DriverManager.getConnection(DB_URL, USER, PASS);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            stmt = connection.createStatement();
+            rs = stmt.executeQuery(QUERY);
+
+            while(rs.next()){
+                //Display values
+                pendingTicketEntityArrayList.add(
+                        PendingTicketEntity.builder()
+                                .reservation_id(rs.getInt("reservation_id"))
+                                .first_name(rs.getString("first_name"))
+                                .last_name(rs.getString("last_name"))
+                                .e_mail(rs.getString("e_mail"))
+                                .phone_number(rs.getString("phone_number"))
+                                .type_of_trip(rs.getString("type_of_trip"))
+                                .date(rs.getString("date"))
+                                .time(rs.getString("time"))
+                                .departure_id(rs.getInt("departure_id"))
+                                .destination_id(rs.getInt("destination_id"))
+                                .build()
+                );
+            }
+
+        } catch (ClassNotFoundException e) {
+            LOG.error("An exception occurred while loading JDBC class.", e);
+        } catch (Exception e) {
+            LOG.error("A generic exception occurred.", e);
+        } finally {
+            close(connection, stmt, rs);
+        }
+
+        return pendingTicketEntityArrayList;
+    }
+
+    public static int AddApprovedTicket(ApprovedTicketDto approvedTicketDto){
+
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+
+        try {
+            Class.forName(JDBC_DRIVER);
+
+            connection = DriverManager.getConnection(DB_URL, USER, PASS);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            String sql = "INSERT INTO flight_book_app.approved_tickets VALUES (DEFAULT,?,?,?,?,?,?,?,?,?) RETURNING id";
+
+            pstmt = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            pstmt.clearParameters();
+
+            LOG.info("rezerwacja " + approvedTicketDto.getFirst_name());
+
+            pstmt.setString(1, approvedTicketDto.getFirst_name());
+            pstmt.setString(2, approvedTicketDto.getLast_name());
+            pstmt.setString(3, approvedTicketDto.getE_mail());
+            pstmt.setString(4, approvedTicketDto.getPhone_number());
+            pstmt.setString(5, approvedTicketDto.getType_of_trip());
+            pstmt.setString(6, approvedTicketDto.getDate());
+            pstmt.setString(7, approvedTicketDto.getTime());
+            pstmt.setInt(8, approvedTicketDto.getDeparture_id());
+            pstmt.setInt(9, approvedTicketDto.getDestination_id());
+
+
+            rs = pstmt.executeQuery();
+            rs.beforeFirst();
+
+            Database.DeleteApproved(approvedTicketDto.getId());
+
+
+        } catch (ClassNotFoundException e) {
+            LOG.error("An exception occurred while loading JDBC class.", e);
+        } catch (Exception e) {
+            LOG.error("A generic exception occurred.", e);
+        } finally {
+            close(connection, pstmt, rs);
+        }
+        return 1;
+    }
+
+    private static void DeleteApproved(int id){
+        try(Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            Statement stmt = conn.createStatement();
+        ) {
+            String delete_sql = "DELETE FROM flight_book_app.pending_tickets WHERE reservation_id = "+id;
+            stmt.executeUpdate(delete_sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     // Moja funckja
-
     public static int addClients(Reservation reservation) {
 
 
