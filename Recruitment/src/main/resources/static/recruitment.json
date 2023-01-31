@@ -71,11 +71,93 @@
       "properties": {}
     },
     {
-      "subtype": "date",
-      "dateLabel": "Date",
-      "type": "datetime",
-      "id": "Field_0japzrc",
-      "key": "field_0nxeudx",
+      "values": [
+        {
+          "label": "Cracow",
+          "value": "cracow"
+        }
+      ],
+      "label": "Origin",
+      "type": "select",
+      "id": "Field_1qlfr8b",
+      "key": "field_0fiu1p2",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "values": [
+        {
+          "label": "Warsaw",
+          "value": "warsaw"
+        },
+        {
+          "label": "Berlin",
+          "value": "berlin"
+        },
+        {
+          "label": "New York",
+          "value": "new_york"
+        }
+      ],
+      "label": "Destination",
+      "type": "select",
+      "id": "Field_1mwybqz",
+      "key": "field_0pfh188",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "values": [
+        {
+          "label": "01/02/2023",
+          "value": "01/02/2023"
+        },
+        {
+          "label": "02/02/2023",
+          "value": "02/02/2023"
+        },
+        {
+          "label": "03/02/2023",
+          "value": "03/02/2023"
+        },
+        {
+          "label": "04/02/2023",
+          "value": "04/02/2023"
+        }
+      ],
+      "label": "Date",
+      "type": "select",
+      "id": "Field_1dx6kt9",
+      "key": "date",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "values": [
+        {
+          "label": "8:00",
+          "value": "8:00"
+        },
+        {
+          "label": "10:45",
+          "value": "10:45"
+        },
+        {
+          "label": "13:30",
+          "value": "13:30"
+        },
+        {
+          "label": "18:00",
+          "value": "18:00"
+        }
+      ],
+      "label": "Time",
+      "type": "select",
+      "id": "Field_12o41q1",
+      "key": "time",
       "validate": {
         "required": true
       }

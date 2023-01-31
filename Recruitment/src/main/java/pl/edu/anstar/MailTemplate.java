@@ -1,6 +1,5 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
-import java.text.*;
 import javax.mail.*;
 import java.util.Hashtable;
 import javax.mail.internet.MimeUtility;

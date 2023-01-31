@@ -1,4 +1,4 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
 import java.util.*;
 import javax.activation.*;

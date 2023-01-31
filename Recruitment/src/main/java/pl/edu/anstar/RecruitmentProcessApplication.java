@@ -1,4 +1,4 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
 import io.camunda.zeebe.spring.client.EnableZeebeClient;
 import io.camunda.zeebe.spring.client.annotation.Deployment;

@@ -1,26 +1,34 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.client.api.worker.JobClient;
-import io.camunda.zeebe.client.api.worker.JobHandler;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import org.postgresql.util.PSQLException;
-import java.sql.SQLException;
-
+import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
 
+
+@Service
 @Component
 public class CandidateApplicationAdapter {
 
     private static Logger LOG = LoggerFactory.getLogger(CandidateApplicationAdapter.class);
 
-//    @JobWorker(type = "registerApplication")
+    private final JavaMailSender javaMailSender;
+
+    public CandidateApplicationAdapter(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
+
+    //    @JobWorker(type = "registerApplication")
 //    public Map<String, Object> registerApplication(final JobClient client, final ActivatedJob job) {
 //        HashMap<String, Object> jobResultVariables = new HashMap<>();
 //
@@ -108,7 +116,6 @@ public class CandidateApplicationAdapter {
         for (Map.Entry<String, Object> entry : jobVariables1.entrySet()) {
             LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
         }
-
         jobResultVariables1.put("YES",true);
 
         return jobResultVariables1;
@@ -123,6 +130,13 @@ public class CandidateApplicationAdapter {
         for (Map.Entry<String, Object> entry : jobVariables1.entrySet()) {
             LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
         }
+
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("bme.ans.rsjk@gmail.com");
+//        message.setTo("");
+//        message.setSubject("");
+//        message.setText("");
+//        javaMailSender.send(message);
 
         jobResultVariables1.put("mailSent",true);
 
@@ -140,12 +154,27 @@ public class CandidateApplicationAdapter {
             LOG.info("Job variables (process & task input): {}", entry.getKey() + " : " + entry.getValue());
         }
 
-        // CandidateApplication candidateApplication = (CandidateApplication) job.getVariablesAsMap().get("candidateApplication");
-        // MailTemplate mt = new MailTemplate(0, candidateApplication.getFirstName() + " " + candidateApplication.getLastName(), candidateApplication.getEmail(), null, candidateApplication.getApplicationId());
 
-//        MailTemplate mt = new MailTemplate(0, (String) job.getVariablesAsMap().get("firstName") + " " + (String) job.getVariablesAsMap().get("lastName"), (String) job.getVariablesAsMap().get("email"), null, (Integer) job.getVariablesAsMap().get("applicationId"));
+        Reservation reservation =  new Reservation(
+                (String) job.getVariablesAsMap().get("firstname"),
+                (String)job.getVariablesAsMap().get("lastname"),
+                (String)job.getVariablesAsMap().get("email"),
+                (String) job.getVariablesAsMap().get("phone"),
+                (String)job.getVariablesAsMap().get("field_0pski5r"),
+                (String)job.getVariablesAsMap().get("field_0nxeudx")
+
+        );
+
+        MimeMessage message2Send = javaMailSender.createMimeMessage();
+
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("bme.ans.rsjk@gmail.com");
+//        message.setTo(reservation.getEmail());
+//        message.setSubject("Test xd");
+
+
         try {
-//            mt.sendMail();
+            javaMailSender.send(message2Send);
             LOG.info("Sending mail succeeded.");
             jobResultVariables.put("mailSendingResult", true);
         } catch (Exception e) {

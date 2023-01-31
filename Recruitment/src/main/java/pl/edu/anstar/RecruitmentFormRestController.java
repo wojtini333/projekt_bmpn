@@ -1,4 +1,4 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
 import io.camunda.zeebe.client.ZeebeClient;
 import org.slf4j.Logger;

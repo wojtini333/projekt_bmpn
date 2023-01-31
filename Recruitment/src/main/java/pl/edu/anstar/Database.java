@@ -1,12 +1,9 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.postgresql.Driver;
 
 public class Database {
 

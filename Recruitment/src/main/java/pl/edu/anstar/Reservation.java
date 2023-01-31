@@ -1,4 +1,4 @@
-package pl.edu.anstar.recruitment;
+package pl.edu.anstar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
