@@ -34,26 +34,28 @@ public class CandidateApplicationAdapter {
     public Map<String, Object> addToDatabase(final JobClient client, final ActivatedJob job1) {
         HashMap<String, Object> jobResultVariables1 = new HashMap<>();
 
-        LOG.info("Job registerApplication is started.");
-        final Map<String, Object> jobVariables1 = job1.getVariablesAsMap();
-        for (Map.Entry<String, Object> entry : jobVariables1.entrySet()) {
-            LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
-        }
-        Reservation reservation =  new Reservation(
-                (String) job1.getVariablesAsMap().get("firstname"),
-                (String)job1.getVariablesAsMap().get("lastname"),
-                (String)job1.getVariablesAsMap().get("email"),
-                (String) job1.getVariablesAsMap().get("phone"),
-                (String)job1.getVariablesAsMap().get("field_0pski5r"),
-                (String)job1.getVariablesAsMap().get("field_0nxeudx")
-
-        );
-
+        Reservation reservation =
+                Reservation.builder()
+                    .firstName((String) job1.getVariablesAsMap().get("firstname"))
+                    .lastName((String)job1.getVariablesAsMap().get("lastname"))
+                    .email((String)job1.getVariablesAsMap().get("email"))
+                    .phone_number((String) job1.getVariablesAsMap().get("phone"))
+                    .type_of_trip((String) job1.getVariablesAsMap().get("trip_type"))
+                    .date((String) job1.getVariablesAsMap().get("date"))
+                    .time((String) job1.getVariablesAsMap().get("time"))
+                    .departure((String) job1.getVariablesAsMap().get("departure"))
+                    .destination((String) job1.getVariablesAsMap().get("destination"))
+                    .build();
         int applicationId = Database.addClients(reservation);
-        if( applicationId == 1 )
-            jobResultVariables1.put("decision",true);
-        else
-            jobResultVariables1.put("decision",false);
+        if( applicationId == 1 ) {
+            jobResultVariables1.put("decision", true);
+            jobResultVariables1.put("mail_data", null);
+            jobResultVariables1.put("mail_message", null);
+        } else {
+            jobResultVariables1.put("mail_data", reservation);
+            jobResultVariables1.put("mail_message", 3);
+            jobResultVariables1.put("decision", false);
+        }
 
         return jobResultVariables1;
     }
@@ -70,29 +72,37 @@ public class CandidateApplicationAdapter {
         if( pendingTickets.size() == 0 ){
             LOG.info("Queue is empty");
             jobResultVariables1.put("register",1);
+            jobResultVariables1.put("mail_data", null);
+            jobResultVariables1.put("mail_message", null);
             return jobResultVariables1;
         } else {
             PendingTicketEntity ticket =  pendingTickets.get(0);
-            result = Database.AddApprovedTicket(
+            ApprovedTicketDto ticketToApprove =
                     ApprovedTicketDto.builder()
-                            .id(ticket.getReservation_id())
-                            .first_name(ticket.getFirst_name())
-                            .last_name(ticket.getLast_name())
-                            .e_mail(ticket.getE_mail())
-                            .phone_number(ticket.getPhone_number())
-                            .type_of_trip(ticket.getType_of_trip())
-                            .date(ticket.getDate())
-                            .time(ticket.getTime())
-                            .departure_id(ticket.getDeparture_id())
-                            .destination_id(ticket.getDestination_id())
-                            .build()
+                        .id(ticket.getReservation_id())
+                        .first_name(ticket.getFirst_name())
+                        .last_name(ticket.getLast_name())
+                        .e_mail(ticket.getE_mail())
+                        .phone_number(ticket.getPhone_number())
+                        .type_of_trip(ticket.getType_of_trip())
+                        .date(ticket.getDate())
+                        .time(ticket.getTime())
+                        .departure_id(ticket.getDeparture_id())
+                        .destination_id(ticket.getDestination_id())
+                        .build();
+            result = Database.AddApprovedTicket(
+                    ticketToApprove
             );
 
             if( result == 1 ) {
                 LOG.info("registration approved");
+                jobResultVariables1.put("mail_data",ticketToApprove);
+                jobResultVariables1.put("mail_message",1);
                 jobResultVariables1.put("register", 2);
             } else {
                 LOG.info("registration not approved");
+                jobResultVariables1.put("mail_data",ticketToApprove);
+                jobResultVariables1.put("mail_message",2);
                 jobResultVariables1.put("register", 3);
             }
 
@@ -110,6 +120,8 @@ public class CandidateApplicationAdapter {
         for (Map.Entry<String, Object> entry : jobVariables1.entrySet()) {
             LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
         }
+        LOG.info("To jest zmienna dla maila: " + jobVariables1.get("mail_data"));
+        LOG.info("To jest zmienna dla maila: " + jobVariables1.get("mail_message"));
 
 //        SimpleMailMessage message = new SimpleMailMessage();
 //        message.setFrom("bme.ans.rsjk@gmail.com");
@@ -134,16 +146,9 @@ public class CandidateApplicationAdapter {
             LOG.info("Job variables (process & task input): {}", entry.getKey() + " : " + entry.getValue());
         }
 
-
-        Reservation reservation =  new Reservation(
-                (String) job.getVariablesAsMap().get("firstname"),
-                (String)job.getVariablesAsMap().get("lastname"),
-                (String)job.getVariablesAsMap().get("email"),
-                (String) job.getVariablesAsMap().get("phone"),
-                (String)job.getVariablesAsMap().get("field_0pski5r"),
-                (String)job.getVariablesAsMap().get("field_0nxeudx")
-
-        );
+        LOG.info("To jest zmienna dla maila: " + jobVariables.get("beka to jest email"));
+        LOG.info("To jest zmienna dla maila: " + jobVariables.get("mail_data"));
+        LOG.info("To jest zmienna dla maila: " + jobVariables.get("mail_message"));
 
         MimeMessage message2Send = javaMailSender.createMimeMessage();
 

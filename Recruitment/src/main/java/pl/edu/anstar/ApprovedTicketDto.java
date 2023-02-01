@@ -16,6 +16,6 @@ public class ApprovedTicketDto {
     private String type_of_trip;
     private String date;
     private String time;
-    private int departure_id;
-    private int destination_id;
+    private String departure_id;
+    private String destination_id;
 }

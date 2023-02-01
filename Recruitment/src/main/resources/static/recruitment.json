@@ -64,7 +64,7 @@
       "label": "Type of trip",
       "type": "radio",
       "id": "Field_1fjuw5f",
-      "key": "field_0pski5r",
+      "key": "trip_type",
       "validate": {
         "required": true
       },
@@ -80,7 +80,7 @@
       "label": "Origin",
       "type": "select",
       "id": "Field_1qlfr8b",
-      "key": "field_0fiu1p2",
+      "key": "departure",
       "validate": {
         "required": true
       }
@@ -103,7 +103,7 @@
       "label": "Destination",
       "type": "select",
       "id": "Field_1mwybqz",
-      "key": "field_0pfh188",
+      "key": "destination",
       "validate": {
         "required": true
       }

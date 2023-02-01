@@ -133,8 +133,8 @@ public class Database {
                                 .type_of_trip(rs.getString("type_of_trip"))
                                 .date(rs.getString("date"))
                                 .time(rs.getString("time"))
-                                .departure_id(rs.getInt("departure_id"))
-                                .destination_id(rs.getInt("destination_id"))
+                                .departure_id(rs.getString("departure_id"))
+                                .destination_id(rs.getString("destination_id"))
                                 .build()
                 );
             }
@@ -168,7 +168,7 @@ public class Database {
             pstmt = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             pstmt.clearParameters();
 
-            LOG.info("rezerwacja " + approvedTicketDto.getFirst_name());
+            LOG.info("reservation " + approvedTicketDto.getFirst_name());
 
             pstmt.setString(1, approvedTicketDto.getFirst_name());
             pstmt.setString(2, approvedTicketDto.getLast_name());
@@ -177,8 +177,8 @@ public class Database {
             pstmt.setString(5, approvedTicketDto.getType_of_trip());
             pstmt.setString(6, approvedTicketDto.getDate());
             pstmt.setString(7, approvedTicketDto.getTime());
-            pstmt.setInt(8, approvedTicketDto.getDeparture_id());
-            pstmt.setInt(9, approvedTicketDto.getDestination_id());
+            pstmt.setString(8, approvedTicketDto.getDeparture_id());
+            pstmt.setString(9, approvedTicketDto.getDestination_id());
 
 
             rs = pstmt.executeQuery();
@@ -223,19 +223,22 @@ public class Database {
             connection = DriverManager.getConnection(DB_URL, USER, PASS);
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
-            String sql = "INSERT INTO candidate_aplication.rezerwacja VALUES (DEFAULT,?,?,?,?,?,?) RETURNING id_rezerwacji";
+            String sql = "INSERT INTO flight_book_app.pending_tickets VALUES (DEFAULT,?,?,?,?,?,?,?,?,?) RETURNING reservation_id";
 
             pstmt = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             pstmt.clearParameters();
 
-            LOG.info("rezerwacja " + reservation.getFirstName());
+            LOG.info("pending ticket " + reservation.getFirstName());
 
             pstmt.setString(1, reservation.getFirstName());
             pstmt.setString(2, reservation.getLastName());
             pstmt.setString(3, reservation.getEmail());
             pstmt.setString(4, reservation.getPhone_number());
             pstmt.setString(5, reservation.getType_of_trip());
-            pstmt.setString(6, reservation.getDate_of_booking());
+            pstmt.setString(6, reservation.getDate());
+            pstmt.setString(7, reservation.getTime());
+            pstmt.setString(8, reservation.getDeparture());
+            pstmt.setString(9, reservation.getDestination());
 
 
             rs = pstmt.executeQuery();
