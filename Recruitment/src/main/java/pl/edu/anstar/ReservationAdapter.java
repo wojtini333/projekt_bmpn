@@ -6,27 +6,30 @@ import io.camunda.zeebe.client.api.response.ActivatedJob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.mail.Message;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
 @Service
 @Component
-public class CandidateApplicationAdapter {
+public class ReservationAdapter {
 
-    private static Logger LOG = LoggerFactory.getLogger(CandidateApplicationAdapter.class);
+    private static final String email_sender = "bme.ans.rsjk@gmail.com";
+
+    private static Logger LOG = LoggerFactory.getLogger(ReservationAdapter.class);
 
     private final JavaMailSender javaMailSender;
 
-    public CandidateApplicationAdapter(JavaMailSender javaMailSender) {
+    public ReservationAdapter(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
@@ -120,23 +123,53 @@ public class CandidateApplicationAdapter {
         for (Map.Entry<String, Object> entry : jobVariables1.entrySet()) {
             LOG.info("Job variable (process variable & inputed variable): " + entry.getKey() + " : " + entry.getValue());
         }
+
         LOG.info("To jest zmienna dla maila: " + jobVariables1.get("mail_data"));
         LOG.info("To jest zmienna dla maila: " + jobVariables1.get("mail_message"));
 
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setFrom("bme.ans.rsjk@gmail.com");
-//        message.setTo("");
-//        message.setSubject("");
-//        message.setText("");
-//        javaMailSender.send(message);
+        LinkedHashMap mail_data = (LinkedHashMap)jobVariables1.get("mail_data");
+        MimeMessage message2Send = javaMailSender.createMimeMessage();
+        try{
+            String message = "<html>\n" +
+                    "<head>\n" +
+                    "<style>\n" +
+                    "body {font-weight: bold;}\n" +
+                    "</style>\n" +
+                    "</head>\n" +
+                    "<body>\n" +
+                    "\n" +
+                    "<h1 style=\"color:blue;\">Potwierdzenie rejestracji biletu lotniczego</h1>\n" +
+                    "<p>Rezerwacja biletu na nazwisko " + mail_data.get("first_name") + " " + mail_data.get("last_name") +" została pomyślnie przeprowadzona.</p>\n" +
+                    "<p>Miejsce wylotu: "+ mail_data.get("departure_id") + "</p>\n" +
+                    "<p>Data wylotu: " + mail_data.get("date") + "</p>\n" +
+                    "<p>Godzina wylotu: " + mail_data.get("time") +"</p>\n" +
+                    "<p>Miejsce docelowe: " + mail_data.get("destination_id") +"</p>\n" +
+                    "\n" +
+                    "</body>\n" +
+                    "</html>";
 
-        jobResultVariables1.put("mailSent",true);
+            message2Send.setFrom(new InternetAddress(ReservationAdapter.email_sender));
+            message2Send.setRecipient(Message.RecipientType.TO, new InternetAddress((String)mail_data.get("e_mail")));
+            message2Send.setSubject("Potwierdzenie rezerwacji biletu");
+            message2Send.setContent(message, "text/html; charset=utf-8");
+
+            javaMailSender.send(message2Send);
+            LOG.info("Sending mail succeeded.");
+            jobResultVariables1.put("mailSent", true);
+
+        }
+        catch (Exception e){
+            LOG.error("Sending mail failed.");
+            jobResultVariables1.put("mailSent", false);
+        }
+
+
 
         return jobResultVariables1;
     }
 
 
-    @JobWorker(type = "sendMail")
+    @JobWorker(type = "sendNegativeMail")
     public Map<String, Object> sendEmail(final JobClient client, final ActivatedJob job) {
         HashMap<String, Object> jobResultVariables = new HashMap<>();
 
@@ -146,19 +179,54 @@ public class CandidateApplicationAdapter {
             LOG.info("Job variables (process & task input): {}", entry.getKey() + " : " + entry.getValue());
         }
 
-        LOG.info("To jest zmienna dla maila: " + jobVariables.get("beka to jest email"));
         LOG.info("To jest zmienna dla maila: " + jobVariables.get("mail_data"));
         LOG.info("To jest zmienna dla maila: " + jobVariables.get("mail_message"));
 
+        LinkedHashMap mail_data = (LinkedHashMap)jobVariables.get("mail_data");
         MimeMessage message2Send = javaMailSender.createMimeMessage();
 
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setFrom("bme.ans.rsjk@gmail.com");
-//        message.setTo(reservation.getEmail());
-//        message.setSubject("Test xd");
-
-
         try {
+            message2Send.setFrom(new InternetAddress(ReservationAdapter.email_sender));
+            message2Send.setRecipient(Message.RecipientType.TO, new InternetAddress((String)mail_data.get("e_mail")));
+
+            if((int)jobVariables.get("mail_message") == 2){
+                message2Send.setSubject("Odmowa rezerwacji biletu");
+
+                String message = "<html>\n" +
+                        "<head>\n" +
+                        "<style>\n" +
+                        "body {font-weight: bold;}\n" +
+                        "</style>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "\n" +
+                        "<h1 style=\"color:red;\">Odmowa rezerwacji biletu lotniczego</h1>\n" +
+                        "<p>Nie udało się zarezerwować biletu lotniczego na nazwisko " + mail_data.get("first_name") + " " + mail_data.get("last_name")+" ze względu na brak wolnych miejsc" + ".</p>\n" +
+                        "</body>\n" +
+                        "</html>";
+                message2Send.setContent(message, "text/html; charset=utf-8");
+
+
+            }
+            else if((int)jobVariables.get("mail_message") == 3){
+
+                message2Send.setSubject("Błąd rezerwacji biletu");
+
+                String message = "<html>\n" +
+                        "<head>\n" +
+                        "<style>\n" +
+                        "body {font-weight: bold;}\n" +
+                        "</style>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "\n" +
+                        "<h1 style=\"color:red;\">Odmowa rezerwacji biletu lotniczego</h1>\n" +
+                        "<p>Wystąpił problem podczas rezerwacji biletu" + ".</p>\n" +
+                        "</body>\n" +
+                        "</html>";
+                message2Send.setContent(message, "text/html; charset=utf-8");
+            }
+
             javaMailSender.send(message2Send);
             LOG.info("Sending mail succeeded.");
             jobResultVariables.put("mailSendingResult", true);

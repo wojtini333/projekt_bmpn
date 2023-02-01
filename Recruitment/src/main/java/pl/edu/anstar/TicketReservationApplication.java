@@ -10,9 +10,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableZeebeClient
 @Deployment(resources = "classpath*:/model/*.*")
 @EnableScheduling
-public class RecruitmentProcessApplication {
+public class TicketReservationApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RecruitmentProcessApplication.class, args);
+        SpringApplication.run(TicketReservationApplication.class, args);
     }
 }

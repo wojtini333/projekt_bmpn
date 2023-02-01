@@ -13,9 +13,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/")
-public class RecruitmentFormRestController {
+public class TicketReservationFormRestController {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RecruitmentFormRestController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TicketReservationFormRestController.class);
 
   @Autowired
   private ZeebeClient client;
